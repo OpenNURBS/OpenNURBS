@@ -8,7 +8,7 @@ and can be used to create meshes and output to mesh file formats. OpenNURBS will
 start as just objects but will eventually support both interactive GUI and API access.
 
 Roadmap for development:
-  Phase I:
+ * Phase I:
     1. basis, curve, surface objects, conic sections object
        - node, curve, surface, region objects
     2. save to file, standard mesh format
@@ -17,7 +17,7 @@ Roadmap for development:
     5. Extrusion, Offset Extrusion
     6. Display feedback first steps
 
-  Phase II:
+ * Phase II:
     6. Tube Capping
     7. Smoothing
     8. Joining / Filleting extruded tubes
