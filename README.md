@@ -5,7 +5,9 @@ OpenNURBS is an open-source NURBS-based geometric modeling library and toolset,
 with meshing and display / output functions. OpenNURBS .nrb_geom files hold
 NURBS parametric geometry models and can be used to save and load a working model,
 and can be used to create meshes and output to mesh file formats. OpenNURBS will
-start as just objects but will eventually support both interactive GUI and API access.
+support primitive object instantiation through classes in the first phase. In the
+second phase, we will support mesh/model classification set & query, binary and
+distributed mesh formats, interactive GUI, and API access.
 
 Roadmap for development:
  * Phase I:
