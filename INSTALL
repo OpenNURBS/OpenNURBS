@@ -1,0 +1,25 @@
+To install OpenNURBS demo program:
+ 
+ - dependencies: c++ compiler with c++11 and clang support
+ 
+Recommended install procedure:
+
+git clone https://github.com/OpenNURBS/OpenNURBS.git OpenNURBS
+cd OpenNURBS
+mkdir build && cd build
+cmake ..
+make
+
+executable will, by default, be located in the build/bin folder
+
+you can set a custom install path with
+cmake --prefix=/install/path
+make install
+
+or just
+sudo make install 
+to place the executable into /usr/bin
+
+To use OpenNURBS as a library, use library build option to generate .so files
+then link these or copy them into your own program, alternately, you can link
+OpenNURBS as a submodule within your own git project
