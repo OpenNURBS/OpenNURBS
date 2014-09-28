@@ -1,0 +1,22 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+install:
+- ./scripts/travis/installDeps.sh "${TRAVIS_OS_NAME}"
+before_script:
+- ./scripts/travis/cppChecker.sh ./src
+- ./scripts/travis/clangFormatChecker.sh
+script:
+- mkdir build
+- cd build
+- cmake .. -DCMAKE_PREFIX_PATH=${TRAVIS_BUILD_DIR} && make -j 2
+branches:
+  only:
+  - master
+  - develop
+
+
+
+
+
