@@ -88,7 +88,5 @@ void gPoint<T>::getCoords(vector<T> &pointSet) {
     } catch (...) {
         // should have a log output versus screen output here
         cerr << " couldn't get coords in gPoint::getCoord()\n";
-        return 0;
     }
-    return 1;
 }
