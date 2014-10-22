@@ -41,7 +41,7 @@ public:
 
 template <typename T>
 gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
-    unique_ptr<vector < T >> coord(new vector<T>( pointSet.size() )); // usually will have 3 coords, x, y, & z
+    unique_ptr<vector < T >> coords(new vector<T>( pointSet.size() )); // usually will have 3 coords, x, y, & z
     int i=0;
     try {
         for (auto it : pointSet) {
