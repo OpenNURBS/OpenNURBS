@@ -28,16 +28,33 @@ int main(int argc, char **argv) {
     int64_t index=0;
 
     // set up vectors of doubles (to hold some starting coords)
+    // an example set of 7 points we will use as control points (n = 7)
     vector<double> coords0={ 0.0, 0.0, 0.0 };
+    vector<double> coords1={ 0.0, 1.0, 0.5 };
+    vector<double> coords2={ 0.0, 2.0, 1.0 };
+    vector<double> coords3={ 1.0, 1.0, 1.5 };
+    vector<double> coords4={ 2.0, 0.0, 2.0 };
+    vector<double> coords5={ 1.0, 0.0, 2.5 };
+    vector<double> coords6={ 0.0, 0.0, 3.0 };
 
-    // Model objects such as points, curves, surfaces, regions
-    // should usually be declared as shared_ptr at the main run level
-
-    // demonstration of instantiating a point object
+    // we will instantiate shared_ptr for 7 point objects
     auto point0=make_shared<gPoint<double>>( coords0, index++ );
+    auto point1=make_shared<gPoint<double>>( coords1, index++ );
+    auto point2=make_shared<gPoint<double>>( coords2, index++ );
+    auto point3=make_shared<gPoint<double>>( coords3, index++ );
+    auto point4=make_shared<gPoint<double>>( coords4, index++ );
+    auto point5=make_shared<gPoint<double>>( coords5, index++ );
+    auto point6=make_shared<gPoint<double>>( coords6, index++ );
 
-    // demonstation of instantiating a curve object
+    // we make a vector of the points we want for a gCurve object
+    vector<shared_ptr<gPoint<double>>> CP0
+            ={ point0, point1, point2, point3, point4, point5, point6 };
 
+    // we make an example knot vector here
+    vector<double> KV0={ 0, 0, 0, 0.3, 0.3, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0 };
+
+    // we will instantiate a shared_ptr for a curve object
+    auto curve0=make_shared<gCurve<double>>( CP0, KV0 );
 
     return 0;
 }

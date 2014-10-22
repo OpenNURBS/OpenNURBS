@@ -28,8 +28,8 @@ private:
   unique_ptr<vector<T>> knotWeights; // NURBS curve knot point weights (default is all weights = 1)
 
 public:
-  gCurve(vector<shared_ptr<gPoint<T>>> &controlPoints, vector<T> &knotVector);
-  gCurve(vector<shared_ptr<gPoint<T>>> &controlPoints, vector<T> &knotVector, vector<T> &knotWeights);
+  gCurve(vector<shared_ptr<gPoint<T>>> &cPoints, vector<T> &kVector);
+  gCurve(vector<shared_ptr<gPoint<T>>> &cPoints, vector<T> &kVector, vector<T> &kWeights);
   // the instantiators expect unique_ptrs to vectors,
   // they take control of the address pointer and memory, using a move operation with no copying
 
@@ -44,20 +44,46 @@ public:
   // knot weight accessors
   int getKnotWeights(vector<T> &copyknotWeights);
   int setKnotWeights(vector<T> &newKnotWeights);
-
-  ~gCurve()=delete;
 };
 
 // for templated classes, the function defs need to stay in .h or .hpp included files...
 
 template <typename T>
-gCurve<T>::gCurve(vector<shared_ptr<gPoint<T>>> &controlPoints, vector<T> &knotVector) {
-
+gCurve<T>::gCurve(vector<shared_ptr<gPoint<T>>> &cPoints, vector<T> &kVector) {
+  unique_ptr<vector<shared_ptr<gPoint<T>>>> controlPoints(new vector<shared_ptr<gPoint<T>>>(cPoints.size()));
+  int i = 0;
+  for( auto it : cPoints){
+    controlPoints->at(i) = it;
+    i++;
+  }
+  i=0;
+  unique_ptr<vector<T>> knotVector(new vector<T>(kVector.size()));
+  for( auto it : kVector){
+    knotVector->at(i) = it;
+    i++;
+  }
 };
 
 template <typename T>
-gCurve<T>::gCurve(vector<shared_ptr<gPoint<T>>> &controlPoints, vector<T> &knotVector, vector<T> &knotWeights) {
-
+gCurve<T>::gCurve(vector<shared_ptr<gPoint<T>>> &cPoints, vector<T> &kVector, vector<T> &kWeights) {
+  unique_ptr<vector<shared_ptr<gPoint<T>>>> controlPoints(new vector<shared_ptr<gPoint<T>>>(cPoints.size()));
+  int i = 0;
+  for( auto it : cPoints){
+    controlPoints->at(i) = it;
+    i++;
+  }
+  i=0;
+  unique_ptr<vector<T>> knotVector(new vector<T>(kVector.size()));
+  for( auto it : kVector){
+    knotVector->at(i) = it;
+    i++;
+  }
+  i=0;
+  unique_ptr<vector<T>> knotWeights(new vector<T>(kWeights.size()));
+  for( auto it : kWeights){
+    knotWeights->at(i) = it;
+    i++;
+  }
 };
 // the instantiators expect unique_ptrs to vectors,
 // they take control of the address pointer and memory, using a move operation with no copying
