@@ -51,7 +51,12 @@ int main(int argc, char **argv) {
             ={ point0, point1, point2, point3, point4, point5, point6 };
 
     // we make an example knot vector here
-    vector<double> KV0={ 0, 0, 0, 0.3, 0.3, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0 };
+    // this is a 'uniform' knot vector, with length (m+1)=12
+    vector<double> KV0={ 0, 0, 0, 0, 0, 0.333, 0.666, 1.0, 1.0, 1.0, 1.0, 1.0 };
+
+    // the degree of this curve is p=4, the order is (p+1)=5
+    // there are (n+1) = 7 basis functions, for n=m-p-1=6
+    // using "The NURBS Book" variable names
 
     // we will instantiate a shared_ptr for a curve object
     auto curve0=make_shared<gCurve<double>>( CP0, KV0 );
