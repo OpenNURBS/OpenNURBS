@@ -16,6 +16,7 @@
 #include <memory>
 #include <gPoint.hpp>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -37,8 +38,11 @@ public:
   // the instantiators expect unique_ptrs to vectors,
   // they take control of the address pointer and memory, using a move operation with no copying
 
-  // to retrieve points along the curve
-  int getPoints(vector<shared_ptr<gPoint<T>>> &points);
+  // to retrieve a points along the curve, given a number of curve divisions
+  int getPoints(vector<shared_ptr<gPoint<T>>> &points, int divisions);
+
+  // to retrieve a single point, given a NURBS curve parameter
+  int getPoint(gPoint<T> &point, T u);
 
   // control point accessors (deep copy for the get operation)
   int getControlPoints(vector<shared_ptr<gPoint<T>>> &copyCP);
@@ -53,6 +57,7 @@ public:
   int setKnotWeights(vector<T> &newKnotWeights);
 
   int basisFuns(T u, vector<T> &returnBasis);
+  int basisFuns(T u, vector<T> &returnBasis, int knotSpan);
 
 };
 
@@ -163,10 +168,10 @@ int gCurve<T>::getKnotSpan(T u){ // alg A2.1 from p.68 of "The NURBS Book"
 // note: (n+1) is also the number of control points
 // note: this is alg A2.2 from page 70 of "The NURBS Book"
 template <typename T>
-int gCurve<T>::basisFuns(T u, vector<T> &returnBasis){
+int gCurve<T>::basisFuns(T u, vector<T> &returnBasis, int knotSpan){
    int n = controlPoints->size()-1;
-   int i = getKnotSpan(u);
    try {
+     int i = knotSpan;
      returnBasis->clear();
      returnBasis->resize(n+1);
      returnBasis[0]=1;
@@ -187,4 +192,61 @@ int gCurve<T>::basisFuns(T u, vector<T> &returnBasis){
    } catch (...) {
      return 0;
    }
+}
+
+template <typename T>
+int basisFuns(T u, vector<T> &returnBasis){
+  try {
+    int i = getKnotSpan(u);
+    return basisFuns(u, returnBasis, i);
+  } catch (...) {
+    return 0;
+  }
+}
+
+// to retrieve a vector of points along a curve, given a number of curve divisions
+// the returned vector includes both endpoints, so a vector of 101 length for 100 divisions
+template <typename T>
+int gCurve<T>::getPoints(vector<shared_ptr<gPoint<T>>> &points, int divisions){
+  points->clear();
+  points->resize(divisions);
+  auto minmax = std::minmax_element(knotVector.begin(), knotVector.end());
+  T stepSize = (knotVector[minmax.second()] - knotVector[minmax.first()])/divisions;
+  int vecInd = 0;
+  for(T i; i <= knotVector[minmax.second()]; i += stepSize){
+    if(vecInd > points->size()){
+      break;
+    }
+    auto shared_point = make_shared<gPoint<double>>;
+    if(getPoint(shared_point,i)){
+      points[vecInd] = shared_point; // copies a shared_ptr to a new point into the return vector
+    } else {
+      return 0;
+    }
+  }
+  return 1;
+}
+
+// to retrieve a single point along a curve, given a NURBS curve parameter
+template <typename T>
+int gCurve<T>::getPoint(gPoint<T> &point, T u){
+  try {
+    int span = getKnotSpan(u);
+    int myDim = point->getDim();
+    unique_ptr<vector<T>> Basis(new vector<T>);
+    basisFuns(u,Basis,span);
+    unique_ptr<vector<T>> myCoords(new vector<T>(myDim));
+    for(int dim=0; dim<myDim; dim++){ // initialize coords vector to zeroes
+      myCoords[dim] = 0;
+    }
+    for(int i=0; i < degree; i++){
+      for(int dim=0; dim<myDim; dim++){ // calculate point coords from basis functions
+        myCoords[dim] += Basis[i]*controlPoints[span-degree+i]->coord(dim);
+      }
+    }
+    point->setCoords(myCoords);
+    return 1;
+  } catch (...) {
+    return 0;
+  }
 }

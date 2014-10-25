@@ -32,7 +32,8 @@ public:
     return gIndex;
   };
   // deep copy of the coords on the get operation, not just move the unique_ptr
-  void getCoords(vector<T> &pointSet);
+  void getCoords(vector<T> &pointSet); // get all the coords from a point
+  void getDim() { return coords->size(); };
   T coord(int index) { return coords[index]; }; // allows access to read coords
   int64_t ind() { return gIndex; }; // allows access to read global index
 };
@@ -57,7 +58,7 @@ gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
 
 template <typename T>
 int gPoint<T>::setCoords(vector<T> &pointSet) {
-    // copy vector of doubles into coord
+    // copy a vector of doubles into coord
     coords->clear();
     coords->resize();
     int i=0;
