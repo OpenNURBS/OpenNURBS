@@ -23,12 +23,12 @@ int main(int argc, char **argv) {
     std::cout
             << "¸.·´¯`·.¸¸.·´ OpenNURBS Demo Program `·.¸¸.·´¯`·.¸\n";
 
-    // set up a few NURBS curves and make a surface
+    // set up a few NURBS curves and make a surface, using object primitives
 
-    int64_t index=0;
+    int64_t index=0; // right now points just have a single global int64_t index
 
     // set up vectors of doubles (to hold some starting coords)
-    // an example set of 7 points we will use as control points (n = 7)
+    // an example set of 7 points we will use as control points
     vector<double> coords0={ 0.0, 0.0, 0.0 };
     vector<double> coords1={ 0.0, 1.0, 0.5 };
     vector<double> coords2={ 0.0, 2.0, 1.0 };
@@ -56,6 +56,10 @@ int main(int argc, char **argv) {
 
     // the degree of this curve is p=4, the order is (p+1)=5
     // there are (n+1) = 7 basis functions, for n=m-p-1=6
+    // m = # knots - 1
+    // n = # points -1
+    // p = degree of the curve = # knots - # points - 1
+    // order of the curve = p + 1 = # points that control curve placement at a time
     // using "The NURBS Book" variable names
 
     // we will instantiate a shared_ptr for a curve object
