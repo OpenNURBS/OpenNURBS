@@ -24,7 +24,7 @@ private:
 
 public:
   gPoint(vector<T> &pointSet, int64_t ind);
-  int setCoords(vector<T> &pointSet);
+  int setCoords(unique_ptr<vector<T>> &pointSet);
   int setIndex(int64_t ind) {
     return (gIndex = ind);
   };
@@ -33,8 +33,8 @@ public:
   };
   // deep copy of the coords on the get operation, not just move the unique_ptr
   void getCoords(vector<T> &pointSet); // get all the coords from a point
-  void getDim() { return coords->size(); };
-  T coord(int index) { return coords[index]; }; // allows access to read coords
+  int getDim() { return coords->size(); };
+  T coord(int index) { return coords->at(index); }; // allows access to read coords
   int64_t ind() { return gIndex; }; // allows access to read global index
 };
 
@@ -42,14 +42,15 @@ public:
 
 template <typename T>
 gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
-    unique_ptr<vector < T >> coords(new vector<T>( pointSet.size() )); // usually will have 3 coords, x, y, & z
+    coords = unique_ptr<vector<T>>(new vector<T>( pointSet.size() )); // usually will have 3 coords, x, y, & z
     int i=0;
     try {
         for (auto it : pointSet) {
             coords->at(i)=it;
             i++;
         }
-    } catch (...) {
+    } catch( const std::exception& e ) { // reference to the base of a polymorphic object
+        std::cout << "  " << e.what() << " error.\n";
         // should have a log output versus screen output here
         cerr << " couldn't instantiate gPoint<T>::gPoint(vector<T>& coord, int64_t ind)\n";
     }
@@ -57,17 +58,17 @@ gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
 }
 
 template <typename T>
-int gPoint<T>::setCoords(vector<T> &pointSet) {
+int gPoint<T>::setCoords(unique_ptr<vector<T>> &pointSet) {
     // copy a vector of doubles into coord
     coords->clear();
-    coords->resize();
+    coords->resize(pointSet->size());
     int i=0;
     try {
-        for (auto it : pointSet) {
-            coords->at(i)=it;
-            i++;
+        for (int i=0; i < pointSet->size(); i++) {
+            coords->at(i)=pointSet->at(i);
         }
-    } catch (...) {
+    } catch( const std::exception& e ) { // reference to the base of a polymorphic object
+        std::cout << "  " << e.what() << " error.\n";
         // should have a log output versus screen output here
         cerr << " couldn't set coords in gPoint::setCoord()\n";
         return 0;
@@ -78,16 +79,15 @@ int gPoint<T>::setCoords(vector<T> &pointSet) {
 template <typename T>
 void gPoint<T>::getCoords(vector<T> &pointSet) {
     // get vector of doubles from coord
-    pointSet->clear();
-    pointSet->resize();
-    int i=0;
+    pointSet.clear();
+    pointSet.resize(coords->size());
     try {
-        for (auto it : coords) {
-            pointSet->at(i)=it;
-            i++;
+        for (int i = 0; i < coords->size(); i++) {
+            pointSet.at(i)=coords->at(i);
         }
-    } catch (...) {
+    } catch( const std::exception& e ) { // reference to the base of a polymorphic object
+        std::cout << "  " << e.what() << " error.\n";
         // should have a log output versus screen output here
-        cerr << " couldn't get coords in gPoint::getCoord()\n";
+        cerr << "  couldn't get coords in gPoint::getCoord()\n";
     }
 }
