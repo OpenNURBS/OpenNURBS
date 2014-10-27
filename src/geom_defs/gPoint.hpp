@@ -24,17 +24,14 @@ private:
 
 public:
   gPoint(vector<T> &pointSet, int64_t ind);
+  // on the SET operation, we just grab the unique_ptr<vector<T>>
   int setCoords(unique_ptr<vector<T>> &pointSet);
-  int setIndex(int64_t ind) {
-    return (gIndex = ind);
-  };
-  int64_t getIndex() {
-    return gIndex;
-  };
-  // deep copy of the coords on the get operation, not just move the unique_ptr
+  int setIndex(int64_t ind) { return (gIndex = ind); };
+  int64_t getIndex() { return gIndex; };
+  // deep copy of the coords on the GET operation, not just move the unique_ptr
   void getCoords(vector<T> &pointSet); // get all the coords from a point
   int getDim() { return coords->size(); };
-  T coord(int index) { return coords->at(index); }; // allows access to read coords
+  T coord(int index) { return coords->at(index); }; // allows access to read ind. coords by index
   int64_t ind() { return gIndex; }; // allows access to read global index
 };
 
@@ -42,7 +39,7 @@ public:
 
 template <typename T>
 gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
-    coords = unique_ptr<vector<T>>(new vector<T>( pointSet.size() )); // usually will have 3 coords, x, y, & z
+    coords = unique_ptr<vector<T>>(new vector<T>( pointSet.size() )); // deep copy coords on instantiation
     int i=0;
     try {
         for (auto it : pointSet) {
@@ -58,26 +55,14 @@ gPoint<T>::gPoint(vector<T> &pointSet, int64_t ind) {
 }
 
 template <typename T>
-int gPoint<T>::setCoords(unique_ptr<vector<T>> &pointSet) {
+int gPoint<T>::setCoords(unique_ptr<vector<T>> &pointSet) { // to set coords, pass in a unique_ptr<vector<T>>
     // copy a vector of doubles into coord
-    coords->clear();
-    coords->resize(pointSet->size());
-    int i=0;
-    try {
-        for (int i=0; i < pointSet->size(); i++) {
-            coords->at(i)=pointSet->at(i);
-        }
-    } catch( const std::exception& e ) { // reference to the base of a polymorphic object
-        std::cout << "  " << e.what() << " error.\n";
-        // should have a log output versus screen output here
-        cerr << " couldn't set coords in gPoint::setCoord()\n";
-        return 0;
-    }
+    coords = move(pointSet);
     return 1;
 }
 
 template <typename T>
-void gPoint<T>::getCoords(vector<T> &pointSet) {
+void gPoint<T>::getCoords(vector<T> &pointSet) { // we deep copy on get, to save our local unique_ptr coords
     // get vector of doubles from coord
     pointSet.clear();
     pointSet.resize(coords->size());

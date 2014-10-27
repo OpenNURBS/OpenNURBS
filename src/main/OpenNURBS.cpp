@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     std::cout
             << "¸.·´¯`·.¸¸.·´ OpenNURBS Demo Program `·.¸¸.·´¯`·.¸\n";
 
-    // set up a few NURBS curves and make a surface, using object primitives
+    // this program demonstrates usage of the gPoint & gCurve geometry model objects
 
     int64_t index = 0; // right now points just have a single global int64_t index
 
@@ -60,8 +60,8 @@ int main(int argc, char **argv)
     // this is a 'uniform' knot vector, with length (m+1)=12
     vector<double> KV0 = {0, 0, 0, 0, 0, 0.333, 0.666, 1.0, 1.0, 1.0, 1.0, 1.0};
 
-    // the degree of this curve is p=4, the order is (p+1)=5
-    // there are (n+1) = 7 basis functions, for n=m-p-1=6
+    // the degree of a curve is p, the order is (p+1)
+    // there are (n+1) basis functions, for n=m-p-1
     // m = # knots - 1
     // n = # points -1
     // p = degree of the curve = # knots - # points - 1
@@ -71,15 +71,31 @@ int main(int argc, char **argv)
     // we will instantiate a shared_ptr for a curve object
     auto curve0 = make_shared<gCurve<double>>(CP0, KV0);
 
-    vector<shared_ptr<gPoint<double>>> myPoints;
+    // this block shows how to retreive controlPoints from a curve
+    //vector<shared_ptr<gPoint<double>>> myPoints;
     //curve0->getControlPoints(myPoints);
 
+    // this block shows how to get a single point along a NURBS curve
     auto myPoint = make_shared<gPoint<double>>(coords0, index++);
-    cout << "dim : " << myPoint->getDim() << "\n";
+    // cout << "dim : " << myPoint->getDim() << "\n";
     curve0->getPoint(myPoint, 0.5);
     for (int i = 0; i < 3; i++)
     {
-        cout << myPoint->coord(i) << " ";
+        // cout << myPoint->coord(i) << " "; // display the coords, dim 3 in this case
+    }
+    //cout << "\n";
+
+    // here we get points along a NURBS curve with a specified number of divisions
+    //unique_ptr<vector<gPoint<double>>> myPoints(new vector<gPoint<double>>);
+    vector<shared_ptr<gPoint<double>>> myPoints;
+    curve0->getPoints(myPoints, 100);
+    for (auto it : myPoints)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            cout << it->coord(i) << " "; // print out coords for gPoints along gCurve
+        }
+        cout << "\n";
     }
 
 
