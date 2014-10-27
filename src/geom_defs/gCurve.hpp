@@ -41,7 +41,7 @@ public:
   // to retrieve a points along the curve, given a number of curve divisions
   int getPoints(vector<shared_ptr<gPoint<T>>> &points, int divisions);
 
-  // to retrieve a single point, given a NURBS curve parameter
+  // to retrieve a single point along the curve, given the NURBS curve parameter
   int getPoint(shared_ptr<gPoint<T>> &point, T u);
 
   // control point accessors (deep copy for the get operation)
@@ -56,7 +56,7 @@ public:
   int getKnotWeights(vector<T> &copyknotWeights);
   int setKnotWeights(vector<T> &newKnotWeights);
 
-  int basisFuns(T u, vector<T> &returnBasis);
+  int basisFuns(T u, unique_ptr<vector<T>> &returnBasis);
   int basisFuns(T u, unique_ptr<vector<T>> &returnBasis, int knotSpan);
 
 };
@@ -210,7 +210,7 @@ int gCurve<T>::basisFuns(T u, unique_ptr<vector<T>> &returnBasis, int knotSpan){
 }
 
 template <typename T>
-int gCurve<T>::basisFuns(T u, vector<T> &returnBasis){
+int gCurve<T>::basisFuns(T u, unique_ptr<vector<T>> &returnBasis){
   try {
     int i = getKnotSpan(u);
     return basisFuns(u, returnBasis, i);
@@ -225,13 +225,9 @@ template <typename T>
 int gCurve<T>::getPoint(shared_ptr<gPoint<T>> &point, T u){
   try {
     int span = getKnotSpan(u);
-    cout << "knotspan : " << span << "\n";
     int myDim = point->getDim();
     unique_ptr<vector<T>> Basis(new vector<T>(controlPoints->size()));
     basisFuns(u,Basis,span);
-    for (int i=0; i<Basis->size(); i++){
-      cout << Basis->at(i) << "\n";
-    }
     unique_ptr<vector<T>> myCoords(new vector<T>);
     myCoords->resize(myDim,0);
     for(int i=0; i <= degree; i++){
@@ -239,7 +235,7 @@ int gCurve<T>::getPoint(shared_ptr<gPoint<T>> &point, T u){
         myCoords->at(dim) += Basis->at(i)*controlPoints->at(span-degree+i)->coord(dim);
       }
     }
-    point->setCoords(myCoords);
+    point->setCoords(myCoords); // hand off unique_ptr to new coords vector<T> here
     return 1;
   } catch( const std::exception& e ) { // reference to the base of a polymorphic object
     std::cout << "  " << e.what() << " error.\n";
@@ -252,25 +248,28 @@ int gCurve<T>::getPoint(shared_ptr<gPoint<T>> &point, T u){
 template <typename T>
 int gCurve<T>::getPoints(vector<shared_ptr<gPoint<T>>> &points, int divisions){
   points.clear();
-  points.resize(divisions);
+  points.resize(divisions+1);
   auto minmax = std::minmax_element(knotVector->begin(), knotVector->end());
-  T stepSize = (knotVector[minmax.second] - knotVector[minmax.first])/divisions;
+  T stepSize = (*minmax.second - *minmax.first)/divisions;
   int vecInd = 0;
-  for(T i; i < knotVector->at(minmax.second); i += stepSize){
-    if(vecInd > points->size()-1){
-      break; // prevent overrun caused by binary arithmatic errors
+  for(T i=0; i < *minmax.second; i += stepSize){
+    if(vecInd > points.size()-1){
+      break; // prevent overrun caused by binary arithmetic errors
     }
-    auto shared_point = make_shared<gPoint<double>>;
+    vector<T> tempCoords = { 0, 0, 0 };
+    auto shared_point = make_shared<gPoint<T>>(tempCoords,0);
     if(getPoint(shared_point,i)){
-      points->at(vecInd) = shared_point; // copies a shared_ptr to a new point into the return vector
+      points.at(vecInd) = shared_point; // copies a shared_ptr to a new point into the return vector
+      vecInd++;
     } else {
       return 0;
     }
   }
   // this puts the last point directly at the curve endpoint, avoiding arithmetic errors
-  auto shared_point = make_shared<gPoint<double>>;
+  vector<T> tempCoords = { 0, 0, 0 };
+  auto shared_point = make_shared<gPoint<T>>(tempCoords,0);
   if(getPoint(shared_point,knotVector->at(knotVector->size()-1))){ // use the last entry in the knot vector
-    points->at(points->size()-1) = shared_point;
+    points.at(points.size()-1) = shared_point;
     return 1; // copies a shared_ptr to a new point into the return vector
   } else {
     return 0;
