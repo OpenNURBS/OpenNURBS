@@ -17,6 +17,8 @@ message(STATUS "cmake -v:      ${CMAKE_VERSION}")
 message(STATUS "localhost:     ${CMAKE_SYSTEM}")
 message(STATUS "hardware:      ${CMAKE_SYSTEM_PROCESSOR}")
 
+option(BUILD_SHARED_LIBS   "Build shared libraries:" ON)
+
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
 
@@ -33,7 +35,7 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES Clang)
   CHECK_CXX_COMPILER_FLAG(-std=c++11 HAVE_STD11)
   if (HAVE_STD11)
     if (APPLE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     else()
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
     endif()
@@ -45,6 +47,7 @@ endif()
 message(STATUS "cxx compiler: ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "cxx flags:       ${CMAKE_CXX_FLAGS}")
 message(STATUS "cxx link flags:  ${CMAKE_CXX_LINK_FLAGS}")
+message(STATUS "build shared libs: ${BUILD_SHARED_LIBS}")
 
 add_subdirectory(src)
 
